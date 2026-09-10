@@ -31,3 +31,6 @@ The homepage now renders the supplied cleaned.mp4 as a full-screen scroll-driven
 A new original Three.js sequence follows the approved hero on the homepage and both division pages. It uses geometric light rings, a particle field, scroll-driven camera travel, pointer parallax, and typography at different depths. The reference repository https://github.com/vikod3/void-atlasp was studied for its spatial design techniques; its source, videos, hosting settings, and demo form were not copied.
 
 Services, channels, project directions, process steps, about, contact, and footer content now use staggered depth reveals. Pointer-capable devices get perspective tilt and moving highlights on cards. Reduced-motion preferences disable these effects. The WebGL scene is lazy loaded, rendered only near the viewport, and disposed on navigation. If WebGL is unavailable, the text and page links remain usable over a static background.
+
+
+Current presentation: one fixed 1080p-upscaled, 24 fps image sequence follows total document scroll behind all content. The separate creative gallery has been removed. Original sources are 720p, so this is not native 1080p capture. Research: research/design-research.md.
