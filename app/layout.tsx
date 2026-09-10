@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { SiteHeader, SiteFooter } from './site-shell';
 import MotionEffects from './motion-effects';
 
-const geistSans = Geist({
+const geistSans = Manrope({
   variable: '--font-geist-sans',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
+const geistMono = JetBrains_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });

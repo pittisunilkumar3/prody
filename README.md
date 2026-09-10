@@ -34,3 +34,5 @@ Services, channels, project directions, process steps, about, contact, and foote
 
 
 Current presentation: one fixed 1080p-upscaled, 24 fps image sequence follows total document scroll behind all content. The separate creative gallery has been removed. Original sources are 720p, so this is not native 1080p capture. Research: research/design-research.md.
+
+Final reference update: continuous locally encoded 1080p H.264 background video, scroll seeking with latest-target completion, Manrope / JetBrains Mono, monochrome layout, word reveals, and glass footer. The supplied WISA specification informs layout only; ProDyum content and routes remain.

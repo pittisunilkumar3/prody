@@ -4,7 +4,7 @@
 
 ProDyum should present itself as a creative business with two connected disciplines: digital services and entertainment. The most appropriate immersive experience is an editorial studio site with a cinematic opening, continuous footage behind the full page, clear capabilities, and direct routes to a project conversation. Motion should make the work and services easier to understand. It should not become a separate attraction that visitors must complete before discovering what the company does.
 
-The previous implementation combined an animated film opening with an abstract ring tunnel, scattered discipline labels, and repeated dark cards. The assessment here is a design judgment: those elements did not form a specific studio identity. The tunnel added scrolling distance without showing additional craft or evidence. Repeating similar dark sections reduced the contrast between moments. The recommended replacement uses a consistent cinematic surface, followed by one continuous film background with typography and content moving over it.
+The previous implementation combined an animated film opening with an abstract ring tunnel, scattered discipline labels, and repeated dark cards. The assessment here is a design judgment: those elements did not form a specific studio identity. The tunnel added scrolling distance without showing additional craft or evidence. Repeating similar dark sections reduced the contrast between moments. The final direction follows the supplied WISA layout specification: one continuous film background with minimal white typography and content moving over it.
 
 ## Evidence and reference comparison
 
@@ -38,29 +38,29 @@ The supplied action clip is 1280 × 720 at 24 frames per second, with a video bi
 | Image export | More compressed JPEG | Higher-quality JPEG export |
 | Source handling | Reduced source size | Direct export from original, Lanczos scaling, mild sharpening |
 
-The revised files are 1080p upscales, not native Full HD recordings. Upscaling interpolates additional pixels; sharpening increases local edge contrast. Neither reconstructs authentic fine detail that was absent from the original. Soft focus, motion blur, generative inconsistencies, and compression already in the source can remain. FFmpeg documents image scaling and unsharp filtering as image-processing operations [6]. The appropriate next source upgrade is a native 1080p or 4K master, if available.
+The revised media files are 1080p upscales, not native Full HD recordings. Upscaling interpolates additional pixels; sharpening increases local edge contrast. Neither reconstructs authentic fine detail that was absent from the original. Soft focus, motion blur, generative inconsistencies, and compression already in the source can remain. FFmpeg documents image scaling and unsharp filtering as image-processing operations [6]. The appropriate next source upgrade is a native 1080p or 4K master, if available.
 
 The visual treatment also matters. Heavy overlays can hide texture even when the asset has adequate resolution. The revision reduces the broad dark wash while retaining shading where text needs separation. Full-screen cropping still affects how much of the original composition is visible, especially on portrait devices. The film remains controlled by page scrolling; no visible video-player box replaces the requested interaction.
 
 ## Final motion and layout specification
 
-The final direction uses a single fixed canvas behind the complete page. The film timeline maps to total page scroll, so services, channels, process, and contact content all appear over the footage. Scrolling backwards moves back through the film. There is no separate gallery, tunnel, or second video section, and the background is not restricted to the opening screen.
+The supplied WISA specification [12] resolves the visual direction: a fixed film background, lower-left headline, supporting copy toward the right, translucent split buttons, word-by-word scroll reveals, an animated navigation bar, and a glass-style footer. The business identity and copy remain ProDyum; the football material and unrelated external video are not adopted.
 
-The headline introduces the business once. Subsequent text flows naturally over the same film surface. Service and process content uses thin dividing lines and restrained perspective reveals instead of opaque blocks. Normal document semantics remain for accessibility, but there are no abrupt background-colour changes between content areas. The background-motion button remains available while reading.
+The final page uses one fixed video layer. Document scroll is mapped to the film duration, finishing near the footer. Services, channels, process, and contact links remain over the same surface. There is no separate gallery, tunnel, or second video section. Semantic sections remain for accessible navigation, without opaque background divisions.
 
-This is an art-direction recommendation shaped by the requested continuous experience, not a claim of conversion improvement. Animation must remain secondary to identifying services and reaching a project enquiry.
+The rendering mechanism now uses locally encoded H.264 films rather than transferring hundreds of JPEG frames. Both output videos are 1920×1080 at 24 fps. The action film is approximately 21.87 MiB and the fantasy film approximately 11.11 MiB. Both are carefully upscaled from the supplied 720p sources. Encoding uses frequent keyframes to support seeking. Only the opening poster from each generated frame collection is retained in the new media directories.
 
 ## Rendering, loading, and accessibility
 
-High-density displays multiply rendering cost, as discussed in the Three.js responsive guide [7]. The canvas caps pixel ratio and uses high-quality image smoothing. It loads frames around the requested position instead of decoding the entire movie into memory. A single 1080p RGBA picture requires about 7.9 MiB before browser overhead; storing all 720 pictures decoded could consume several gigabytes. The bounded cache is therefore necessary.
+The video element has no visible player controls. Scrolling determines its position. The implementation stores the latest requested time, checks whether a seek is already running, and applies any pending target after the seek completes. This adds a completion path to the pasted example: simply ignoring scroll events during a seek can otherwise leave the video behind the final requested position.
 
-MDN recommends avoiding unnecessary canvas work [8]. The sequence redraws on scroll, resize, and relevant image completion rather than running a permanent animation loop. A source frame remains behind the canvas while loading. Fixed background sizing prevents newly loaded images from shifting content; reserving media dimensions is consistent with web.dev layout-stability guidance [9].
+The pasted explanation overstates what the seeking guard guarantees. It can coordinate seek requests, but cannot guarantee tear-free output or identical smoothness on every browser and device. Decoding, bandwidth, keyframe spacing, and browser scheduling still affect results. No universal performance claim is made here.
 
-Reduced-motion preferences disable the scrolling animation by default [10]. The persistent button lets the visitor pause or enable it. All text and normal links remain available with motion disabled. The full frame collection is substantial in size, so these exports should not be described as a lightweight static page. Loading a limited neighbourhood reduces initial transfer but does not remove total transfer cost for an extended browsing session.
+A poster remains visible while the media loads, avoiding a blocking full-screen loading gate. Fixed background dimensions avoid layout changes as the video becomes ready, consistent with media layout-stability guidance [9]. Reduced-motion preferences disable scrubbing by default [10], and the persistent motion button allows pausing or enabling it. All text and links remain available independently of the background motion. The typography uses Manrope with JetBrains Mono for secondary labels, as requested by the reference.
 
 ## Validation and limits
 
-Acceptance checks include successful page rendering, 1920×1080 image dimensions, removal of the rejected gallery, changing canvas frames after scrolling beyond the opening, and normal service and contact links. Compilation checks detect integration errors. These checks are not a substitute for a representative device and network performance study.
+Acceptance checks include successful page rendering, 1920×1080 image dimensions, removal of the rejected gallery, changing video positions after scrolling beyond the opening, and normal service and contact links. Compilation checks detect integration errors. These checks are not a substitute for a representative device and network performance study.
 
 The final result preserves the supplied films as continuous scroll-controlled backgrounds. The media is carefully upscaled from 720p; a native higher-resolution master remains the best source upgrade. No unsupported client logos, awards, financial results, or production credits have been introduced.
 
@@ -73,7 +73,9 @@ The final result preserves the supplied films as continuous scroll-controlled ba
 5. ProDyum. [Existing website](https://prodyum.in/), existing business source, complemented by retained project content from the earlier site study.
 6. FFmpeg. [Filters documentation: scale and unsharp](https://ffmpeg.org/ffmpeg-filters.html), official technical documentation.
 7. Three.js. [Responsive design and HD-DPI](https://threejs.org/manual/en/responsive.html), official manual.
-8. MDN. [Optimizing canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas), technical documentation.
+8. MDN. [Optimizing video surface](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_video surface), technical documentation.
 9. web.dev. [Optimize Cumulative Layout Shift](https://web.dev/articles/optimize-cls), technical guidance.
 10. MDN. [prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion), technical documentation.
 11. Supplied local media: `cleaned.mp4` and `hf_20260409_094505_e898193e-ec14-4ecc-92ed-be976174fc88.mp4`. Private local files; dimensions and frame rates inspected directly. No public source URL.
+
+12. Supplied WISA landing-page specification, `pasted-text.txt`, private attachment. Used as the primary layout and interaction reference; not as business content or permission to replace the project dependencies.
