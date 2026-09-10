@@ -1,152 +1,74 @@
 'use client';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUpRight, Download, Pause, Play, RotateCcw } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { Slider } from '@/components/ui/slider';
-
-const CHAPTERS = [
-  { name: 'The spark', label: 'TECHNOLOGY. CREATIVITY. CINEMA.', first: 'Built to make', last: 'you', accent: 'feel.', description: 'We build brands. We bring stories to life.', detail: 'Welcome to the world of ProDyum.' },
-  { name: 'Digital', label: '01 / PRODYUM IT', first: 'Ideas into', last: 'digital', accent: 'experiences.', description: 'Websites that connect. Technology that delivers.', detail: 'Designed around your next chapter.' },
-  { name: 'Brand', label: '02 / BRANDING & DIGITAL MARKETING', first: 'Be seen.', last: 'Be', accent: 'remembered.', description: 'Strategy, identity, and content with a clear purpose.', detail: 'Make your presence mean something.' },
-  { name: 'Cinema', label: '03 / PRODYUM ENTERTAINMENTS', first: 'Every story', last: 'deserves a', accent: 'screen.', description: 'Movies. Original series. Films that stay with you.', detail: 'From the first idea to the final frame.' },
-  { name: 'Together', label: '04 / ONE CREATIVE ECOSYSTEM', first: 'Your vision.', last: 'Our', accent: 'universe.', description: 'Technology and storytelling, brought together.', detail: 'Let’s create what comes next.' },
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {ArrowDown,ArrowUpRight} from 'lucide-react';
+const brandScenes=[
+ ['TECHNOLOGY. CREATIVITY. CINEMA.','Ideas beyond','the ordinary.','Digital experiences. Brand growth. Stories for the screen.'],
+ ['01 / DIGITAL EXPERIENCES','Make your','presence felt.','Strategy, design, and technology for your next chapter.'],
+ ['02 / BRAND & MARKETING','Built to be','remembered.','Connect your brand with the people who matter.'],
+ ['03 / CINEMA & PRODUCTION','Stories that','move you.','From the first idea to the final frame.'],
+ ['04 / THE PRODYUM ECOSYSTEM','Your vision.','Our universe.','One creative home for what comes next.'],
 ];
-const FRAME_COUNT = 360;
-const frameUrl = (index: number) => `/media/frames/frame-${String(index + 1).padStart(3, '0')}.jpg`;
-
-export default function Experience() {
-  const journey = useRef<HTMLElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const cache = useRef(new Map<number, HTMLImageElement>());
-  const wanted = useRef(0);
-  const painter = useRef<() => void>(() => {});
-  const [progress, setProgress] = useState(0);
-  const [motion, setMotion] = useState(true);
-  const [ready, setReady] = useState(false);
-  const [filmOpen, setFilmOpen] = useState(false);
-  const [filmError, setFilmError] = useState(false);
-  const video = useRef<HTMLVideoElement>(null);
-  const chapter = Math.min(4, Math.floor(progress * 5));
-  const current = CHAPTERS[chapter];
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setMotion(!media.matches);
-    const update = () => setMotion(!media.matches);
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, []);
-
-  useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const el = journey.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        setProgress(Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height - window.innerHeight))));
-      });
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
-  }, []);
-
-  useEffect(() => {
-    if (!motion) return;
-    let active = true;
-    const draw = () => {
-      const el = canvas.current;
-      if (!el || !active) return;
-      let img = cache.current.get(wanted.current);
-      if (!img?.complete || !img.naturalWidth) {
-        const candidates = [...cache.current.entries()].filter(([, value]) => value.complete && value.naturalWidth);
-        candidates.sort((a, b) => Math.abs(a[0] - wanted.current) - Math.abs(b[0] - wanted.current));
-        img = candidates[0]?.[1];
-      }
-      if (!img) return;
-      const rect = el.getBoundingClientRect();
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-      const w = Math.round(rect.width * ratio), h = Math.round(rect.height * ratio);
-      if (!w || !h) return;
-      if (el.width !== w || el.height !== h) { el.width = w; el.height = h; }
-      const context = el.getContext('2d');
-      if (!context) return;
-      const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-      const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
-      context.drawImage(img, (w - iw) * (w < h ? .68 : .6), (h - ih) * .5, iw, ih);
-      setReady(true);
-    };
-    painter.current = draw;
-    window.addEventListener('resize', draw);
-    draw();
-    return () => { active = false; window.removeEventListener('resize', draw); };
-  }, [motion]);
-
-  useEffect(() => {
-    if (!motion) return;
-    const target = Math.min(FRAME_COUNT - 1, Math.round(progress * (FRAME_COUNT - 1)));
-    wanted.current = target;
-    // A small moving cache prevents hundreds of decoded frames staying in memory.
-    for (const [key, img] of cache.current) {
-      if (Math.abs(key - target) > 14) { img.onload = null; cache.current.delete(key); }
-    }
-    const offsets = [0, 1, -1, 2, -2, 3, -3, 4, 5, 6];
-    for (const offset of offsets) {
-      const index = target + offset;
-      if (index < 0 || index >= FRAME_COUNT || cache.current.has(index)) continue;
-      const img = new Image();
-      img.decoding = 'async';
-      img.onload = () => painter.current();
-      img.onerror = () => cache.current.delete(index);
-      cache.current.set(index, img);
-      img.src = frameUrl(index);
-    }
-    painter.current();
-  }, [progress, motion]);
-
-  const seek = useCallback((value: number) => {
-    const el = journey.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top + value * (el.offsetHeight - window.innerHeight), behavior: 'instant' });
-    setProgress(value);
-  }, []);
-
-
-  return <>
-    <section className={`journey ${motion ? '' : 'motion-off'}`} ref={journey} aria-label="Explore the ProDyum brand film">
-      <div className="hero-stage">
-        <img className="hero-art" src="/media/portal.jpg" alt="A chrome ribbon portal with cyan and lime reflections" fetchPriority="high"/>
-        <canvas className={`hero-art frame-canvas ${ready && motion ? 'is-ready' : ''}`} ref={canvas} aria-hidden="true"/>
-        <div className="hero-shade"/>
-        <div className="hero-copy" key={chapter}>
-          <p className="eyebrow"><span className="status-dot"/>{current.label}</p>
-          <h1>{current.first}<br/>{current.last} <em>{current.accent}</em></h1>
-          <p className="hero-description">{current.description}<br/>{current.detail}</p>
-          <div className="hero-actions"><a className="primary-link" href={chapter === 4 ? '/contact' : '#worlds'}>{chapter === 4 ? 'Let’s create together' : 'Explore our worlds'} <ArrowUpRight size={19}/></a><button className="watch-button" onClick={() => { setFilmError(false); setFilmOpen(true); }}><span className="play-disc"><Play size={13} fill="currentColor"/></span>Watch the film <span className="duration">00:30</span></button></div>
-        </div>
-        <div className="scene-note" aria-hidden="true"><span>PRODYUM UNIVERSE</span><span>{String(chapter + 1).padStart(2, '0')} — 05</span><i/></div>
-        <div className="journey-controls">
-          <div className="chapter-nav" aria-label="Film chapters">{CHAPTERS.map((item, index) => <button key={item.name} className={index === chapter ? 'active' : ''} aria-current={index === chapter ? 'step' : undefined} onClick={() => seek(index / 5 + (index ? .005 : 0))}><span>{String(index + 1).padStart(2, '0')}</span>{item.name}</button>)}</div>
-          <div className="scrubber-row"><span className="timecode">00:{String(Math.floor(progress * 30)).padStart(2, '0')}</span><Slider aria-label="Film position" value={[progress * 100]} min={0} max={100} step={.1} onValueChange={(value) => seek((Array.isArray(value) ? value[0] : value) / 100)}/><span className="timecode total-time">00:30</span></div>
-          <div className="hero-bottom"><a className="scroll-label" href="#worlds"><ArrowDown size={14}/><span>SCROLL TO EXPLORE</span></a><button className="motion-button" aria-pressed={!motion} onClick={() => setMotion(!motion)}>{motion ? <Pause size={12}/> : <Play size={12}/>} {motion ? 'REDUCE MOTION' : 'ENABLE MOTION'}</button><span>HYDERABAD, INDIA</span></div>
-        </div>
-      </div>
-    </section>
-    <Dialog open={filmOpen} onOpenChange={setFilmOpen}>
-      <DialogContent className="film-dialog">
-        <DialogTitle className="film-title">ProDyum — Built to make you feel.</DialogTitle>
-        <DialogDescription>Our worlds, in thirty seconds.</DialogDescription>
-        <div className="film-screen">
-          <video ref={video} src="/media/prodyum-film.mp4" poster="/media/portal.jpg" controls autoPlay muted playsInline preload="metadata" onError={() => setFilmError(true)} aria-label="30-second ProDyum brand film"><track kind="captions" src="/media/film-captions.vtt" srcLang="en" label="English"/></video>
-        </div>
-        {filmError && <p role="alert">The film couldn’t load. You can try the download link below.</p>}
-        <div className="film-footer"><button onClick={() => { if (video.current) { video.current.currentTime = 0; void video.current.play().catch(() => {}); } }}><RotateCcw size={15}/> Replay</button><a href="/media/prodyum-film.mp4" download="prodyum-brand-film.mp4"><Download size={15}/> Download film</a></div>
-      </DialogContent>
-    </Dialog>
-  </>;
+const cinemaScenes=[
+ ['PRODYUM ENTERTAINMENTS','Stories beyond','the ordinary.','A cinema-first world of production and possibility.'],
+ ['01 / THE IDEA','Every world starts','with a story.','Film, original series, short films, and music videos.'],
+ ['02 / THE CRAFT','Create something','worth feeling.','Bring the right people and creative direction together.'],
+ ['03 / THE FRAME','Make every','moment matter.','Editing, colour, visual effects, and sound.'],
+ ['04 / YOUR NEXT STORY','From imagination','to the screen.','Let’s bring your next production to life.'],
+];
+export default function Experience({entertainment=false}:{entertainment?:boolean}){
+ const sequence=entertainment?'fantasy':'action';const count=entertainment?240:480;
+ const scenes=entertainment?cinemaScenes:brandScenes;
+ const section=useRef<HTMLElement>(null);const canvas=useRef<HTMLCanvasElement>(null);
+ const images=useRef(new Map<number,HTMLImageElement>());const wanted=useRef(0);const visible=useRef(true);
+ const drawRef=useRef<()=>void>(()=>{});const loaderRef=useRef<(index:number)=>void>(()=>{});
+ const [progress,setProgress]=useState(0);const [ready,setReady]=useState(false);const [motion,setMotion]=useState(true);
+ const [frameNumber,setFrameNumber]=useState(0);
+ const url=useCallback((index:number)=>`/media/scroll-${sequence}/frame-${String(index+1).padStart(3,'0')}.jpg`,[sequence]);
+ useEffect(()=>{const query=window.matchMedia('(prefers-reduced-motion: reduce)');setMotion(!query.matches);const update=()=>setMotion(!query.matches);query.addEventListener('change',update);return()=>query.removeEventListener('change',update)},[]);
+ useEffect(()=>{
+  let active=true;
+  const draw=()=>{
+   if(!active||!visible.current)return;
+   const el=canvas.current;if(!el)return;
+   let index=wanted.current;let img=images.current.get(index);
+   if(!img?.complete||!img.naturalWidth){const available=[...images.current.entries()].filter(([,image])=>image.complete&&image.naturalWidth);available.sort((a,b)=>Math.abs(a[0]-wanted.current)-Math.abs(b[0]-wanted.current));if(!available.length)return;[index,img]=available[0];}
+   const rect=el.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,1.5);const width=Math.round(rect.width*dpr),height=Math.round(rect.height*dpr);
+   if(!width||!height)return;if(el.width!==width||el.height!==height){el.width=width;el.height=height;}
+   const context=el.getContext('2d');if(!context)return;
+   const scale=Math.max(width/img.naturalWidth,height/img.naturalHeight);const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+   context.drawImage(img,(width-w)*.5,(height-h)*.5,w,h);setFrameNumber(index);setReady(true);
+  };
+  drawRef.current=draw;
+  const load=(index:number)=>{if(index<0||index>=count||images.current.has(index))return;const img=new Image();img.decoding='async';images.current.set(index,img);img.onload=draw;img.onerror=()=>images.current.delete(index);img.src=url(index);};loaderRef.current=load;
+  load(0);for(let i=1;i<12;i++)load(i);
+  window.addEventListener('resize',draw);
+  return()=>{active=false;window.removeEventListener('resize',draw);for(const img of images.current.values())img.onload=null;images.current.clear()};
+ },[count,url]);
+ useEffect(()=>{
+  let raf=0;
+  const update=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+   const el=section.current;if(!el)return;const rect=el.getBoundingClientRect();visible.current=rect.bottom>0&&rect.top<window.innerHeight;
+   const value=Math.max(0,Math.min(1,-rect.top/Math.max(1,el.offsetHeight-window.innerHeight)));setProgress(value);
+   const target=motion?Math.round(value*(count-1)):0;wanted.current=target;
+   loaderRef.current(target);
+   // Load around the requested frame, rather than decoding the whole film at once.
+   for(let offset=1;offset<=12;offset++){loaderRef.current(target+offset);if(offset<=6)loaderRef.current(target-offset);}
+   drawRef.current();
+   for(const [index,img]of images.current){if(Math.abs(index-target)>24){img.onload=null;images.current.delete(index);}}
+  });};
+  update();window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);
+  return()=>{cancelAnimationFrame(raf);window.removeEventListener('scroll',update);window.removeEventListener('resize',update)};
+ },[count,motion]);
+ const chapter=Math.min(4,Math.floor(progress*5));const text=scenes[chapter];
+ const destination=entertainment?'#page-content':'#worlds';
+ return <section className="scroll-world" ref={section} aria-label="Scroll-driven cinematic background"><div className="scroll-world-stage">
+  <img className="world-backdrop" src={url(0)} alt="" aria-hidden="true" fetchPriority="high"/>
+  <canvas ref={canvas} className={`world-backdrop ${ready?'frame-visible':''}`} aria-hidden="true" data-frame={frameNumber}/>
+  <div className="world-vignette"/>
+  <div className="world-story" key={chapter}><p className="eyebrow"><span className="status-dot"/>{text[0]}</p><h1>{text[1]}<br/><em>{text[2]}</em></h1><p className="world-description">{text[3]}</p><a className="world-cta" href={chapter===4?(entertainment?'/entertainment/contact':'/contact'):destination}>{chapter===4?'Let’s create together':entertainment?'Explore the studio':'Explore our worlds'}<ArrowUpRight size={18}/></a></div>
+  <div className="world-side-label" aria-hidden="true">PRODYUM / {entertainment?'ENTERTAINMENTS':'CREATIVE ECOSYSTEM'}</div>
+  <div className="world-scroll-footer"><span className="world-scroll-hint"><ArrowDown size={16}/>{progress>.98?'CONTINUE TO EXPLORE':'SCROLL TO MOVE THROUGH THE STORY'}</span><span className="world-chapter" aria-label={`Chapter ${chapter+1} of 5`}>{String(chapter+1).padStart(2,'0')}<span> / 05</span></span><a href={destination}>Skip intro <ArrowDown size={14}/></a></div>
+  {!motion&&<button className="enable-background-motion" onClick={()=>setMotion(true)}>Enable scroll animation</button>}
+  <div className="world-progress" aria-hidden="true"><span style={{transform:`scaleX(${progress})`}}/></div>
+ </div></section>
 }

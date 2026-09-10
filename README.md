@@ -21,3 +21,7 @@ Contact opens an email draft to the address published on the original website. D
 ## Checks
 
 TypeScript, production compilation, video duration and decoding, and completeness of all 360 frame assets. Browser interaction testing has not been performed.
+
+## Scroll background update
+
+The homepage now renders the supplied cleaned.mp4 as a full-screen scroll-driven background (480 frames at 16 fps over 30 seconds). Entertainment uses the supplied 15-second fantasy clip (240 frames at 16 fps). Forward and reverse scrolling select frames on a canvas. No embedded player, autoplay, or playback controls are used in the page experience. Frame decoding uses a moving cache; the first frame is a loading fallback. Reduced-motion visitors can opt into the animation. Local browser checks verified frames 0 → 70 → 141 → 70 on Entertainment, plus scroll-triggered chapter changes.
