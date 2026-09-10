@@ -1,6 +1,5 @@
-/** Limit media movement to 0.65 seconds per real second, in either direction. */
+/** A short, frame-rate-independent catch-up keeps the film tied to the scroll. */
 export function advancePlayhead(current:number,target:number,elapsedSeconds:number){
- const distance=target-current;
- const step=.65*Math.min(.1,Math.max(0,elapsedSeconds));
- return current+Math.sign(distance)*Math.min(Math.abs(distance),step);
+ const blend=1-Math.exp(-Math.min(.1,Math.max(0,elapsedSeconds))/.12);
+ return current+(target-current)*blend;
 }
