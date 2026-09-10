@@ -25,3 +25,9 @@ TypeScript, production compilation, video duration and decoding, and completenes
 ## Scroll background update
 
 The homepage now renders the supplied cleaned.mp4 as a full-screen scroll-driven background (480 frames at 16 fps over 30 seconds). Entertainment uses the supplied 15-second fantasy clip (240 frames at 16 fps). Forward and reverse scrolling select frames on a canvas. No embedded player, autoplay, or playback controls are used in the page experience. Frame decoding uses a moving cache; the first frame is a loading fallback. Reduced-motion visitors can opt into the animation. Local browser checks verified frames 0 → 70 → 141 → 70 on Entertainment, plus scroll-triggered chapter changes.
+
+## Extended spatial interactions
+
+A new original Three.js sequence follows the approved hero on the homepage and both division pages. It uses geometric light rings, a particle field, scroll-driven camera travel, pointer parallax, and typography at different depths. The reference repository https://github.com/vikod3/void-atlasp was studied for its spatial design techniques; its source, videos, hosting settings, and demo form were not copied.
+
+Services, channels, project directions, process steps, about, contact, and footer content now use staggered depth reveals. Pointer-capable devices get perspective tilt and moving highlights on cards. Reduced-motion preferences disable these effects. The WebGL scene is lazy loaded, rendered only near the viewport, and disposed on navigation. If WebGL is unavailable, the text and page links remain usable over a static background.
