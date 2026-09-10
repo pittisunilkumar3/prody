@@ -127,7 +127,7 @@ export default function Experience() {
           <p className="eyebrow"><span className="status-dot"/>{current.label}</p>
           <h1>{current.first}<br/>{current.last} <em>{current.accent}</em></h1>
           <p className="hero-description">{current.description}<br/>{current.detail}</p>
-          <div className="hero-actions"><a className="primary-link" href={chapter === 4 ? '#contact' : '#worlds'}>{chapter === 4 ? 'Let’s create together' : 'Explore our worlds'} <ArrowUpRight size={19}/></a><button className="watch-button" onClick={() => { setFilmError(false); setFilmOpen(true); }}><span className="play-disc"><Play size={13} fill="currentColor"/></span>Watch the film <span className="duration">00:30</span></button></div>
+          <div className="hero-actions"><a className="primary-link" href={chapter === 4 ? '/contact' : '#worlds'}>{chapter === 4 ? 'Let’s create together' : 'Explore our worlds'} <ArrowUpRight size={19}/></a><button className="watch-button" onClick={() => { setFilmError(false); setFilmOpen(true); }}><span className="play-disc"><Play size={13} fill="currentColor"/></span>Watch the film <span className="duration">00:30</span></button></div>
         </div>
         <div className="scene-note" aria-hidden="true"><span>PRODYUM UNIVERSE</span><span>{String(chapter + 1).padStart(2, '0')} — 05</span><i/></div>
         <div className="journey-controls">

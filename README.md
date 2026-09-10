@@ -16,7 +16,7 @@ The website uses 360 JPEG frames extracted at 12 fps from the clean animation. O
 
 The five chapters cover the brand reveal, ProDyum IT, branding and digital marketing, ProDyum Entertainments, and the shared creative ecosystem.
 
-Contact opens an email draft to the address published on the original website. Division links lead to the existing division websites. No emails are submitted by this site, and no unverified portfolio work, metrics, celebrity credits, or testimonials are reproduced.
+Contact opens an email draft to the address published on the original website. Division links now stay inside the replacement site. Dedicated routes cover both divisions, services, project conversations, channels, about, contact, careers, casting, and partnerships. Contact forms prepare email drafts for the visitor to review and send; they do not claim automatic delivery. No emails are submitted by this site, and no unverified portfolio work, metrics, celebrity credits, or testimonials are reproduced.
 
 ## Checks
 

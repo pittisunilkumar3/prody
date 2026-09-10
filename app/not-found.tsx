@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function NotFound(){return <main id="main-content" className="detail-page"><section className="detail-section page-cta" style={{paddingTop:190}}><p className="eyebrow">404 / A DIFFERENT DIRECTION</p><h1>This page has moved<br/>out of <em>frame.</em></h1><p>Explore the ProDyum worlds or get in touch with our team.</p><Link href="/" className="primary-link">Back to ProDyum</Link></section></main>}
